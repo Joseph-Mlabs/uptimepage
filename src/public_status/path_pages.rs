@@ -470,13 +470,16 @@ mod tests {
         assert_eq!(from_headers(&headers), None);
     }
 
-    fn acme() -> PageRef {
+    fn northwind() -> PageRef {
         PageRef {
             page: StatusPageId(Uuid::from_u128(1)),
             org: OrgId(Uuid::from_u128(2)),
         }
     }
 
+    /// `northwind`, not `acme`: a fixture slug has to be one a page could
+    /// actually hold, and `acme` is reserved.
+    ///
     /// The real wrapper around a stand-in app router whose handlers report
     /// what they saw: the path they were routed on, the pinned page, and a
     /// link built with [`local`].
@@ -497,7 +500,7 @@ mod tests {
             )
             .route("/access/code", post(echo))
             .route("/login", get(|| async { "login" }));
-        let pages = vec![("acme".to_owned(), acme())];
+        let pages = vec![("northwind".to_owned(), northwind())];
         wrap_with(
             inner,
             Resolver::new(Source::Fixed(std::sync::Arc::new(pages))),
@@ -526,27 +529,27 @@ mod tests {
 
     #[tokio::test]
     async fn a_page_slug_is_served_from_the_public_routes() {
-        let page = acme().page.0;
-        let (status, _, body) = send("GET", "/acme", false).await;
+        let page = northwind().page.0;
+        let (status, _, body) = send("GET", "/northwind", false).await;
         assert_eq!(status, StatusCode::OK);
-        assert_eq!(body, format!("/status {page} /acme/incidents/9"));
+        assert_eq!(body, format!("/status {page} /northwind/incidents/9"));
 
-        let (_, _, body) = send("GET", "/Acme/incidents/5?show=all", false).await;
+        let (_, _, body) = send("GET", "/Northwind/incidents/5?show=all", false).await;
         assert_eq!(
             body,
-            format!("/status/incidents/5?show=all {page} /acme/incidents/9")
+            format!("/status/incidents/5?show=all {page} /northwind/incidents/9")
         );
 
-        let (status, _, body) = send("POST", "/acme/access/code", false).await;
+        let (status, _, body) = send("POST", "/northwind/access/code", false).await;
         assert_eq!(status, StatusCode::OK);
         assert!(body.starts_with("/access/code "), "{body}");
     }
 
     #[tokio::test]
     async fn redirects_stay_under_the_page() {
-        let (status, headers, _) = send("GET", "/acme/go", false).await;
+        let (status, headers, _) = send("GET", "/northwind/go", false).await;
         assert!(status.is_redirection());
-        assert_eq!(headers.get(LOCATION).unwrap(), "/acme/incidents/1");
+        assert_eq!(headers.get(LOCATION).unwrap(), "/northwind/incidents/1");
     }
 
     #[tokio::test]
@@ -559,7 +562,7 @@ mod tests {
         let (status, _, _) = send("GET", "/ghost-page", false).await;
         assert_eq!(status, StatusCode::NOT_FOUND);
         // A page path that is not a public route never reaches the app.
-        let (status, _, _) = send("GET", "/acme/access", false).await;
+        let (status, _, _) = send("GET", "/northwind/access", false).await;
         assert_eq!(status, StatusCode::NOT_FOUND);
     }
 
@@ -567,8 +570,8 @@ mod tests {
     async fn a_client_cannot_pin_a_page() {
         let (_, _, body) = send("GET", "/status", true).await;
         assert_eq!(body, "/status - /status/incidents/9");
-        let (_, _, body) = send("GET", "/acme", true).await;
-        assert!(body.contains(&acme().page.0.to_string()), "{body}");
+        let (_, _, body) = send("GET", "/northwind", true).await;
+        assert!(body.contains(&northwind().page.0.to_string()), "{body}");
     }
 
     #[test]
