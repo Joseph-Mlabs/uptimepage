@@ -39,7 +39,14 @@ pub fn build_app_router(state: AppState, shutdown: CancellationToken) -> Router 
     // cross-cutting layers so CSRF (Bearer-exempt) and host isolation, which
     // narrows the MCP host to this mount plus discovery, wrap it like the rest.
     let merged = crate::mcp::mount(merged, state.clone());
-    apply_cross_cutting_layers(merged, state)
+    let app = apply_cross_cutting_layers(merged, state.clone());
+    // Outside every layer: the rewrite has to happen before routing, so the
+    // guards and handlers all see the page's path as an ordinary public route.
+    if state.cfg.tenancy.path_page_routes_active() {
+        crate::public_status::path_pages::wrap(app, state.db.clone())
+    } else {
+        app
+    }
 }
 
 /// API-only variant for tests that need to exercise the JSON surface

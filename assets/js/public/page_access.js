@@ -11,6 +11,8 @@
 
     const root = document.querySelector("[data-access-step]");
     const next = root ? root.getAttribute("data-next") : "/";
+    // `/{slug}/access` when the page is served under its own path.
+    const base = (root && root.getAttribute("data-access-base")) || "/access";
     const error = document.getElementById("page-passkey-error");
 
     function show(message) {
@@ -45,7 +47,7 @@
     let pending = null;
 
     async function authenticate(mediation) {
-        const challenge = await post("/access/passkey/login/start");
+        const challenge = await post(base + "/passkey/login/start");
         const options = { publicKey: smPasskey.decodeOptions(challenge.options.publicKey || challenge.options) };
         if (mediation) {
             pending = new AbortController();
@@ -54,7 +56,7 @@
         }
         const assertion = await navigator.credentials.get(options);
         if (!assertion) return;
-        const done = await post("/access/passkey/login/finish", {
+        const done = await post(base + "/passkey/login/finish", {
             handle: challenge.handle,
             credential: smPasskey.encodeCredential(assertion),
             next: next,
@@ -98,12 +100,12 @@
             if (error) error.hidden = true;
             save.disabled = true;
             try {
-                const challenge = await post("/access/passkey/register/start");
+                const challenge = await post(base + "/passkey/register/start");
                 const credential = await navigator.credentials.create({
                     publicKey: smPasskey.decodeOptions(challenge.options.publicKey || challenge.options),
                 });
                 if (!credential) throw new Error("no passkey was created");
-                await post("/access/passkey/register/finish", {
+                await post(base + "/passkey/register/finish", {
                     handle: challenge.handle,
                     credential: smPasskey.encodeCredential(credential),
                 });

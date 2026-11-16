@@ -11,9 +11,26 @@ This page is the per-org / per-page model. For the component, incident, and main
 | Shape | Config | Public surface |
 |---|---|---|
 | Single-tenant | `tenancy.path_based_public_routes = true` (default) | the lone org's default page, served path-based at `/status` on the operator host |
+| Single-tenant, many pages | `tenancy.path_based_public_routes = true`, `tenancy.path_page_routes = true` | every enabled page at `/{slug}` on the operator host, plus the default page at `/status` |
 | Multi-tenant SaaS | `tenancy.subdomain_public_routes = true`, `tenancy.path_based_public_routes = false` | every enabled page at `{slug}.{base_domain}` |
 
 Single-tenant deploys never pay the subdomain path: there is one live org, so its default page is mounted on the operator host at `/status`.
+
+## Path routing
+
+With `tenancy.path_page_routes = true` (env `UPTIMEPAGE_TENANCY__PATH_PAGE_ROUTES=true`) a single-tenant deploy serves each of its pages under its own path on the operator host, so many pages share one hostname and need no DNS or certificates of their own. The page's slug is its path:
+
+| Path | Result |
+|---|---|
+| `/acme` | the page with slug `acme` |
+| `/acme/incidents`, `/acme/incidents/{id}` | its incident archive and permalinks |
+| `/acme/api/public/v1/*`, `/acme/access/*`, `/acme/subscribe/*` | its JSON API, RSS feed and badge, private-page sign-in, and subscriptions |
+| `/status` | the default (oldest) page, as without the flag |
+| `/acme`, page disabled, held, or not the lone org's | **404** |
+
+"View live", the badge snippet and subscriber mail all link to `/{slug}`. A private page's sign-in cookie is scoped to its own path, so signing in to one page never opens another. Slugs that match a top-level app path (`settings`, `targets`, `access`, …) are reserved and cannot be chosen. A new page or a changed slug is picked up within 10 seconds.
+
+The flag only takes effect on the path-based surface: the app refuses to boot with it on while `tenancy.path_based_public_routes` is off or `tenancy.subdomain_public_routes` is on.
 
 Path-based and subdomain public routes are mutually exclusive — serving `/status` on the operator host alongside subdomains would publish one page's data at every tenant's expected URL. Pick one.
 

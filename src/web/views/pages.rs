@@ -608,8 +608,15 @@ pub async fn page_editor(
 /// lives on someone else's site, where a relative link points at that site.
 fn badge_embed(cfg: &crate::config::AppConfig, slug: &str) -> (Option<String>, Option<String>) {
     let base = public_base(cfg, slug);
-    let origin = match base.as_deref() {
-        Some(own) if !own.is_empty() => own,
+    // Path-per-page routing gives `/{slug}` on the app host; a README embed
+    // needs it absolute.
+    let path_page = base
+        .as_deref()
+        .filter(|own| own.starts_with('/'))
+        .map(|own| format!("{}{own}", cfg.auth.public_base_url.trim_end_matches('/')));
+    let origin = match (path_page.as_deref(), base.as_deref()) {
+        (Some(own), _) => own,
+        (None, Some(own)) if !own.is_empty() => own,
         _ => cfg.auth.public_base_url.trim_end_matches('/'),
     };
     if origin.is_empty() {

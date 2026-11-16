@@ -624,9 +624,12 @@ pub fn build_rss(
         out.push_str(&format!("<title>{}</title>", xml_escape(&i.title)));
         out.push_str(&format!("<guid isPermaLink=\"false\">{}</guid>", i.id));
         out.push_str(&format!(
-            "<link>{}/status/incidents/{}</link>",
+            "<link>{}{}</link>",
             xml_escape(base_url),
-            i.id
+            xml_escape(&crate::public_status::path_pages::local(&format!(
+                "/status/incidents/{}",
+                i.id
+            )))
         ));
         out.push_str(&format!("<pubDate>{pub_date}</pubDate>"));
         out.push_str(&format!("<description>{}</description>", xml_escape(&body)));

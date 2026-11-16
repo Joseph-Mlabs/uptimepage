@@ -15,6 +15,7 @@ pub mod incident_writer;
 pub mod logo_storage;
 pub mod outages;
 pub mod overall_status;
+pub mod path_pages;
 pub mod publishing;
 pub mod source;
 pub mod subscriber_dispatch;

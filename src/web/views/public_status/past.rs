@@ -92,10 +92,10 @@ pub fn tab_links(path: &str, anchor: &str, current: HistoryTab, tr: Tr) -> Vec<T
         .into_iter()
         .map(|tab| TabLink {
             label: tab.t(tr, "history-tab"),
-            href: match tab.query() {
+            href: crate::public_status::path_pages::local(&match tab.query() {
                 Some(q) => format!("{path}?show={q}{anchor}"),
                 None => format!("{path}{anchor}"),
-            },
+            }),
             current: tab == current,
         })
         .collect()
@@ -522,7 +522,7 @@ fn downtime(group: &[&PublicIncident], now: DateTime<Utc>) -> i64 {
 }
 
 fn permalink(inc: &PublicIncident) -> String {
-    format!("/status/incidents/{}", inc.id)
+    crate::public_status::path_pages::local(&format!("/status/incidents/{}", inc.id))
 }
 
 fn telling_phase(p: IncidentStatusPhase, tr: Tr) -> Option<PhaseChip> {

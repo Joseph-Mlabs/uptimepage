@@ -98,7 +98,7 @@ impl BrandingView {
                 .branding
                 .logo_hash
                 .as_deref()
-                .map(|h| format!("{LOGO_ROUTE}?v={h}")),
+                .map(|h| crate::public_status::path_pages::local(&format!("{LOGO_ROUTE}?v={h}"))),
             show_powered_by: o.branding.show_powered_by(cfg.default_show_powered_by),
             credit_host: None,
             show_source_links: true,

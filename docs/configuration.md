@@ -83,6 +83,7 @@ The public status surface is gated by **two** independent flags because path-bas
 | Shape | Recommended flags | Public surface |
 |---|---|---|
 | Single-tenant | `path_based_public_routes = true` (default) | `/status` on the operator host (one org) |
+| Single-tenant, many pages | `path_based_public_routes = true`, `path_page_routes = true` | `/{slug}` per page on the operator host, plus `/status` |
 | Multi-tenant SaaS | `subdomain_public_routes = true`, `path_based_public_routes = false` | `{slug}.{base_domain}` per org |
 
 The binary refuses to boot in the dangerous combinations: `subdomain_public_routes` with an empty or single-label `public_status.base_domain`; or an `auth.session.cookie_domain` that overlaps the status wildcard. Each is a loud panic at startup, not a silent runtime leak. See [Per-org status pages](per-org-status.md) for the full model.

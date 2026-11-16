@@ -214,6 +214,13 @@ pub async fn resolve_status_page(
     state: &RequestState,
     headers: &HeaderMap,
 ) -> Result<PageRef, PublicAppError> {
+    // `/{slug}` on the operator host: the page was resolved (and the header
+    // stripped from the client's request) by `path_pages::wrap`.
+    if state.cfg.tenancy.path_page_routes_active()
+        && let Some(page) = crate::public_status::path_pages::from_headers(headers)
+    {
+        return Ok(page);
+    }
     if !state.cfg.tenancy.subdomain_public_routes {
         return resolve_default_page(state).await;
     }
