@@ -141,6 +141,11 @@ path_based_public_routes = true
 # Set true together with a well-formed `public_status.base_domain` to serve
 # per-org status pages on dedicated subdomains.
 subdomain_public_routes = false
+# Every status page of the lone org at `/{slug}` on the operator host, next to
+# `/status` (which keeps serving the oldest page). Single-tenant deploys that
+# run many pages under one host. Needs path_based_public_routes = true and
+# subdomain_public_routes = false; the app refuses to boot otherwise.
+path_page_routes = false
 # Grace period before soft-deleted orgs *and users* are purged. Also the
 # account-recovery window; the Privacy Policy quotes this number.
 deletion_grace_period_days = 30

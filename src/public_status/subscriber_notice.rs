@@ -35,11 +35,14 @@ pub struct PageLinks {
     /// Whether pages are served on hosts of their own; decides where on the
     /// origin the page itself lives.
     pub subdomain_routes: bool,
+    /// Pages live at `{public_base_url}/{slug}` (path-per-page routing).
+    pub path_pages: bool,
 }
 
 impl PageLinks {
     pub fn snapshot(&self, page: &PageRow) -> PageSnapshot {
-        let origin = crate::public_status::urls::page_origin(
+        let origin = crate::public_status::urls::page_root(
+            self.path_pages,
             &self.base_domain,
             &self.public_base_url,
             &page.slug,
@@ -48,7 +51,11 @@ impl PageLinks {
         );
         // The page's own address: subscribers keep it, so it has to be the
         // URL the page answers on rather than one that redirects there.
-        let url = crate::public_status::urls::status_url_for(self.subdomain_routes, &origin);
+        let url = if self.path_pages {
+            origin.clone()
+        } else {
+            crate::public_status::urls::status_url_for(self.subdomain_routes, &origin)
+        };
         PageSnapshot {
             name: page.page_name.clone(),
             locale: page.public_locale.clone(),

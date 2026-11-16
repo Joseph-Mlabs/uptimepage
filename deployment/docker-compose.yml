@@ -197,6 +197,8 @@ services:
       # true.
       UPTIMEPAGE_TENANCY__PATH_BASED_PUBLIC_ROUTES: ${UPTIMEPAGE_PATH_BASED_PUBLIC_ROUTES:-true}
       UPTIMEPAGE_TENANCY__SUBDOMAIN_PUBLIC_ROUTES: ${UPTIMEPAGE_SUBDOMAIN_PUBLIC_ROUTES:-false}
+      # Path mode only: every page at /{slug} on the app host as well.
+      UPTIMEPAGE_TENANCY__PATH_PAGE_ROUTES: ${UPTIMEPAGE_PATH_PAGE_ROUTES:-false}
       UPTIMEPAGE_PUBLIC_STATUS__BASE_DOMAIN: ${UPTIMEPAGE_DOMAIN}
       # Session-fingerprint salt. REQUIRED — boot refuses to start with an
       # empty salt.

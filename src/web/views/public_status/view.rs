@@ -167,11 +167,11 @@ pub(super) fn archive_path(tab: HistoryTab, cursor: Option<&str>) -> String {
         .into_iter()
         .chain(cursor.map(|c| format!("cursor={c}")))
         .collect();
-    if query.is_empty() {
+    crate::public_status::path_pages::local(&if query.is_empty() {
         ARCHIVE_URL.to_owned()
     } else {
         format!("{ARCHIVE_URL}?{}", query.join("&"))
-    }
+    })
 }
 
 /// Which history tab the reader picked, and the path the page is served at,
@@ -526,7 +526,9 @@ pub(super) fn day_related(
         .map(|m| DayRelated {
             title: m.title.clone(),
             url: match m.kind {
-                MarkerKind::Incident => format!("/status/incidents/{}", m.id),
+                MarkerKind::Incident => {
+                    crate::public_status::path_pages::local(&format!("/status/incidents/{}", m.id))
+                }
                 MarkerKind::Maintenance { starts_at } => {
                     let from = HistoryCursor {
                         started_at: starts_at,
@@ -623,7 +625,10 @@ pub(super) fn build_incident_summary(
         crate::text::truncate_chars(&u.message, UPDATE_PREVIEW_CHARS)
     });
     IncidentSummary {
-        permalink: format!("/status/incidents/{}", header.id),
+        permalink: crate::public_status::path_pages::local(&format!(
+            "/status/incidents/{}",
+            header.id
+        )),
         header,
         latest_message,
     }

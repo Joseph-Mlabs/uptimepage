@@ -143,6 +143,19 @@ impl AppConfig {
         )))
     }
 
+    /// `/{slug}` pages hang off the path-based surface; asked for anywhere
+    /// else they would silently not exist.
+    pub fn validate_path_page_routes(&self) -> Result<()> {
+        if !self.tenancy.path_page_routes || self.tenancy.path_page_routes_active() {
+            return Ok(());
+        }
+        Err(crate::error::AppError::Other(anyhow::anyhow!(
+            "tenancy.path_page_routes needs tenancy.path_based_public_routes = true and \
+             tenancy.subdomain_public_routes = false: pages at /{{slug}} are served on the \
+             operator host, which only the path-based surface does"
+        )))
+    }
+
     pub fn validate_marketing(&self) -> Result<()> {
         fn err(msg: String) -> crate::error::AppError {
             crate::error::AppError::Other(anyhow::anyhow!(msg))

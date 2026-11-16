@@ -17,6 +17,14 @@ mod static_refs {
         Ok(crate::templates::assets::url(value))
     }
 
+    /// `{{ "/access/code"|local }}` → that public-page path as seen from the
+    /// page being served: `/{slug}/access/code` under path-per-page routing,
+    /// unchanged otherwise. See `public_status::path_pages::local`.
+    #[askama::filter_fn]
+    pub fn local(value: impl std::fmt::Display, _: &dyn askama::Values) -> askama::Result<String> {
+        Ok(crate::public_status::path_pages::local(&value.to_string()))
+    }
+
     /// AGPL-3.0 §13 source offer. `build.rs` bakes the repository URL and
     /// build commit in via `rustc-env`. `source_url` deep-links to the
     /// exact source the running binary was built from — `…/tree/<commit>`

@@ -406,7 +406,8 @@ pub async fn page_editor(
     // Absolute origin for the badge: subdomain in SaaS mode, else the
     // configured public base URL so path-based/self-host deploys still get a
     // README-ready link.
-    let badge_origin = crate::public_status::urls::page_origin(
+    let badge_origin = crate::public_status::urls::page_root(
+        state.cfg.tenancy.path_page_routes_active(),
         &state.cfg.public_status.base_domain,
         &state.cfg.auth.public_base_url,
         &page.slug,

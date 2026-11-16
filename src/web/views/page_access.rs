@@ -352,6 +352,9 @@ pub async fn request_code(
                 .trim_end_matches('/')
                 .to_owned()
         });
+    // The mail goes out from a spawned task, past the request's page prefix,
+    // so the prefix rides on the origin (`/access/verify` is accepted under it).
+    let origin = format!("{origin}{}", crate::public_status::path_pages::prefix());
     let mail = MailContext {
         sender: state.email_sender.clone(),
         from: EmailAddress::new(
@@ -1303,6 +1306,6 @@ pub async fn login_finish(
     .await;
     let home = status_home(&state, &headers);
     Ok(Json(SignedIn {
-        redirect: safe_next(&body.next, home),
+        redirect: crate::public_status::path_pages::local(&safe_next(&body.next, home)),
     }))
 }

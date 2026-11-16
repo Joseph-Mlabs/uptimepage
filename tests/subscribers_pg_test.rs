@@ -176,6 +176,7 @@ fn config() -> SubscriberDispatchConfig {
             base_domain: "example.com".into(),
             public_base_url: "https://app.example.com".into(),
             subdomain_routes: true,
+            path_pages: false,
         },
         "dispatch-secret".into(),
         "status@example.com".into(),

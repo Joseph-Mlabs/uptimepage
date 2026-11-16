@@ -327,7 +327,14 @@ pub async fn public_incidents_rss(
     } else {
         configured()
     };
-    let page_url = crate::public_status::urls::status_url_for(subdomain_routes, &origin);
+    let page_url = if subdomain_routes {
+        crate::public_status::urls::status_url_for(true, &origin)
+    } else {
+        format!(
+            "{origin}{}",
+            crate::public_status::path_pages::local("/status")
+        )
+    };
     let links = FeedLinks {
         page: &page_url,
         origin: &origin,

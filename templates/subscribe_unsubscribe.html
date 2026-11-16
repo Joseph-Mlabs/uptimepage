@@ -6,7 +6,7 @@
         {% if phase == "confirm" %}
         <h1 class="page-title justify-center"><span class="page-title__prefix" aria-hidden="true">$</span>{{ tr.t("unsubscribe-title")|lower }}</h1>
         <p class="text-sm text-muted">{{ tr.t("unsubscribe-prompt") }}</p>
-        <form method="post" action="/subscribe/unsubscribe?s={{ s }}&amp;t={{ t }}">
+        <form method="post" action="{{ "/subscribe/unsubscribe"|local }}?s={{ s }}&amp;t={{ t }}">
             <button type="submit" class="sticker-btn sticker-btn--primary px-3 py-1.5 text-sm font-medium">{{ tr.t("unsubscribe-title")|lower }}</button>
         </form>
         {% else if phase == "done" %}
