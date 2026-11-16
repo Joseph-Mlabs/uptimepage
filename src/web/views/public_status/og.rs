@@ -43,7 +43,7 @@ pub(super) fn build_og_meta(
     let origin = published_page_origin(&state.request_state(), headers, page);
     let url = origin
         .as_deref()
-        .map(|origin| format!("{origin}{path}"))
+        .map(|origin| format!("{origin}{}", crate::public_status::path_pages::local(path)))
         .unwrap_or_default();
     let image = og_image(
         &state.cfg.site.origin,

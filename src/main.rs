@@ -157,6 +157,7 @@ async fn main() -> Result<()> {
     cfg.validate_disclosure()?;
     cfg.validate_http_client()?;
     cfg.validate_custom_domain_ask()?;
+    cfg.validate_path_page_routes()?;
     // Central Telegram bot: a set bot_token without a username / strong
     // webhook secret / https base is a clean startup error, not a half-up bot.
     cfg.validate_telegram()?;
@@ -755,6 +756,7 @@ async fn main() -> Result<()> {
                     subdomain_routes: cfg.tenancy.subdomain_public_routes,
                     enforce_plan_features: cfg.quotas.enforce_plan_features,
                     default_show_powered_by: cfg.public_status.default_show_powered_by,
+                    path_pages: cfg.tenancy.path_page_routes_active(),
                 },
                 unsubscribe_secret.clone(),
                 cfg.email.from_address.clone(),

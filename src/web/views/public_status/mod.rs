@@ -618,8 +618,8 @@ fn canonical_link(
     if origin.is_empty() {
         return None;
     }
-    let home = status_home(state, headers);
-    let home = home.strip_suffix('/').unwrap_or(home);
+    let home = crate::public_status::path_pages::local(status_home(state, headers));
+    let home = home.strip_suffix('/').unwrap_or(&home);
     header::HeaderValue::from_str(&format!("<{origin}{home}>; rel=\"canonical\"")).ok()
 }
 

@@ -178,6 +178,7 @@ fn config() -> SubscriberDispatchConfig {
             subdomain_routes: true,
             enforce_plan_features: true,
             default_show_powered_by: true,
+            path_pages: false,
         },
         "dispatch-secret".into(),
         "status@example.com".into(),

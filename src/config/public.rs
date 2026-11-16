@@ -107,6 +107,12 @@ pub struct TenancyConfig {
     /// Requires a well-formed `public_status.base_domain`; a startup
     /// assertion refuses to boot otherwise.
     pub subdomain_public_routes: bool,
+    /// Serve every status page of the lone org at `/{slug}` on the operator
+    /// host, alongside the path-based `/status` (which keeps the oldest page).
+    /// For single-tenant deploys running many pages under one host. Only
+    /// takes effect with `path_based_public_routes` on and
+    /// `subdomain_public_routes` off; see `public_status::path_pages`.
+    pub path_page_routes: bool,
     /// Grace period before soft-deleted orgs *and users* are purged. Single
     /// source of truth for the recovery window: the daily retention job binds
     /// this, and the Privacy Policy's "recoverable for 30 days" line is
@@ -122,6 +128,11 @@ impl TenancyConfig {
     pub fn public_routes_active(&self) -> bool {
         self.path_based_public_routes || self.subdomain_public_routes
     }
+
+    /// Whether status pages are served at `/{slug}` on the operator host.
+    pub fn path_page_routes_active(&self) -> bool {
+        self.path_page_routes && self.path_based_public_routes && !self.subdomain_public_routes
+    }
 }
 
 impl Default for TenancyConfig {
@@ -129,6 +140,7 @@ impl Default for TenancyConfig {
         Self {
             path_based_public_routes: true,
             subdomain_public_routes: false,
+            path_page_routes: false,
             deletion_grace_period_days: 30,
         }
     }

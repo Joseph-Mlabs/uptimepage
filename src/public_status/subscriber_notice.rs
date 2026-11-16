@@ -32,11 +32,14 @@ pub struct PageLinks {
     pub enforce_plan_features: bool,
     /// The credit on a page that stored no preference.
     pub default_show_powered_by: bool,
+    /// Pages live at `{public_base_url}/{slug}` (path-per-page routing).
+    pub path_pages: bool,
 }
 
 impl PageLinks {
     pub fn snapshot(&self, page: &PageRow) -> PageSnapshot {
-        let origin = crate::public_status::urls::page_origin(
+        let origin = crate::public_status::urls::page_root(
+            self.path_pages,
             &self.base_domain,
             &self.public_base_url,
             &page.slug,
@@ -45,7 +48,11 @@ impl PageLinks {
         );
         // The page's own address: subscribers keep it, so it has to be the
         // URL the page answers on rather than one that redirects there.
-        let url = crate::public_status::urls::status_url_for(self.subdomain_routes, &origin);
+        let url = if self.path_pages {
+            origin.clone()
+        } else {
+            crate::public_status::urls::status_url_for(self.subdomain_routes, &origin)
+        };
         let credit = credit::in_mail(
             page.show_powered_by.unwrap_or(self.default_show_powered_by),
             self.enforce_plan_features,
@@ -500,6 +507,7 @@ mod tests {
             subdomain_routes: true,
             enforce_plan_features: true,
             default_show_powered_by: true,
+            path_pages: false,
         }
     }
 
@@ -574,6 +582,20 @@ mod tests {
             hosted().snapshot(&row(true, None)).credit,
             "white-label follows the page's own choice, the deploy default here"
         );
+    }
+
+    #[test]
+    fn a_path_page_mails_its_own_path() {
+        let links = PageLinks {
+            subdomain_routes: false,
+            path_pages: true,
+            ..hosted()
+        };
+        let page = row(false, None);
+        let snapshot = links.snapshot(&page);
+        let own = format!("https://app.example.com/{}", page.slug);
+        assert_eq!(snapshot.origin, own);
+        assert_eq!(snapshot.url, own);
     }
 
     #[test]
