@@ -245,7 +245,7 @@ async fn dispatch(inner: Router, resolver: Resolver, mut req: Request) -> Respon
     let Some(page) = resolver.lookup(&slug).await else {
         return call(inner, req).await;
     };
-    let Some(mapped) = inbound(&rest) else {
+    let Some(mapped) = inbound(rest) else {
         return StatusCode::NOT_FOUND.into_response();
     };
     let path_and_query = match req.uri().query() {
